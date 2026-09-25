@@ -67,3 +67,6 @@ while(1):
 
 while(false):
     print("y is the code not working?")
+
+while(2):
+    print("this is the updated code")
