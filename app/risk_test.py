@@ -53,9 +53,17 @@ def massive_god_function(data_payload):
             else:
                 results.append("mid_zone_2")
 
-    if len(results)  100 and val3 > 0:
+    if len(results)  >100 and val3 > 0:
         return True
     elif len(results) < 10:
         return False
     else:
         return None
+while(True):
+    print("Hello World")
+    
+while(1):
+    print("Is this loop safe?")
+
+while(false):
+    print("y is the code not working?")
