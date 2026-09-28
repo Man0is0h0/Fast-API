@@ -23,16 +23,16 @@ app=FastAPI()
 
     
 
-while True:
-    try: 
-        conn=psycopg2.connect(host='localhost',database='fastapi',user='postgres',password='Manish2004',cursor_factory=RealDictCursor)
-        cursor=conn.cursor()
-        print("Database Connection was successfull")
-        break
-    except Exception as error:
-        print("Connection failed")
-        print("Error: ",error)
-        time.sleep(2)
+# while True:
+#     try: 
+#         conn=psycopg2.connect(host='localhost',database='fastapi',user='postgres',password='Manish2004',cursor_factory=RealDictCursor)
+#         cursor=conn.cursor()
+#         print("Database Connection was successfull")
+#         break
+#     except Exception as error:
+#         print("Connection failed")
+#         print("Error: ",error)
+#         time.sleep(2)
 
 
 #get post by id

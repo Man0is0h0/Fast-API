@@ -1,12 +1,12 @@
-from time import timezone
+from datetime import timezone
 
 from fastapi import Depends,status,HTTPException
 from jose import JWTError,jwt
 from datetime import datetime,timedelta
-
+from sqlalchemy.orm import Session
 from pydantic import Secret
 
-from app import schemas 
+from app import database, models, schemas 
 from fastapi.security import OAuth2PasswordBearer
 oauth2_scheme=OAuth2PasswordBearer(tokenUrl='login')
 
@@ -33,6 +33,8 @@ def verify_access_token(token:str,credentials_exception):
         raise credentials_exception
     return token_data
 
-def get_current_user(token:str=Depends(oauth2_scheme)):
+def get_current_user(token:str=Depends(oauth2_scheme),db:Session=Depends(database.get_db)):
     createtials_exception=HTTPException(status_code=401,detail=f"Could not validate credentials",headers={"WWW-Authenticate":"Bearer"})
-    return verify_access_token(token,createtials_exception)
+    token=verify_access_token(token,createtials_exception)
+    user=db.query(models.User).filter(models.User.id==token.id).first()
+    return user

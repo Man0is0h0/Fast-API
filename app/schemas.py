@@ -12,12 +12,7 @@ class PostBase(BaseModel):
 class PostCreate(PostBase):
     pass
 
-class Post(PostBase):
-    id:int
-    # title:str
-    # content:str
-    # published:bool
-    model_config = ConfigDict(from_attributes=True)
+
         
 
 class UserCreate(BaseModel):
@@ -39,4 +34,11 @@ class Token(BaseModel):
     token_type: str
 
 class TokenData(BaseModel):
-    id: Optional[str]=None
+    id: Optional[int]=None
+    
+class Post(PostBase):
+    id:int
+    created_at: datetime
+    user_id: int
+    owner:UserSend
+    model_config = ConfigDict(from_attributes=True)

@@ -1,7 +1,7 @@
 
 from app import oauth2
 
-from .. import models,schemas
+from .. import models,schemas,oauth2
 from ..database import get_db
 from fastapi import Depends,HTTPException,Response,APIRouter
 from sqlalchemy.orm import Session
@@ -19,7 +19,7 @@ router=APIRouter(
 
 ##All Posts
 @router.get("/",response_model=List[schemas.Post]) 
-def get_all_posts(db:Session=Depends(get_db)):
+def get_all_posts(db:Session=Depends(get_db),user:schemas.TokenData=Depends(oauth2.get_current_user)):
     posts=db.query(models.Post).all()
                     # cursor.execute("""SELECT * FROM posts ORDER BY id ASC""")
                     # posts=cursor.fetchall()
@@ -31,7 +31,7 @@ def get_all_posts(db:Session=Depends(get_db)):
 
 ##Post by id
 @router.get("/{id}",response_model=schemas.Post)
-def get_post_by_id(id:int,db:Session=Depends(get_db)):
+def get_post_by_id(id:int,db:Session=Depends(get_db),user:schemas.TokenData=Depends(oauth2.get_current_user)):
                                 # cursor.execute("""SELECT * FROM posts WHERE ID= %s""",(str(id)))
                                 # post=cursor.fetchone()
     # post=find_post(id)
@@ -58,8 +58,9 @@ def get_post_by_id(id:int,db:Session=Depends(get_db)):
 
 ##Create a post
 @router.post("/",status_code=201,response_model=schemas.Post)
-def create_posts(post:schemas.PostCreate,db:Session=Depends(get_db),get_current_user:int=Depends(oauth2.get_current_user)):
-    new_post=models.Post(**post.model_dump())
+def create_posts(post:schemas.PostCreate,db:Session=Depends(get_db),user:schemas.TokenData=Depends(oauth2.get_current_user)):
+    # print(user.email)
+    new_post=models.Post(user_id=user.id,**post.model_dump())
     db.add(new_post)
     db.commit()
     db.refresh(new_post)
@@ -79,7 +80,7 @@ def create_posts(post:schemas.PostCreate,db:Session=Depends(get_db),get_current_
 ##Delete a post
 
 @router.delete("/{id}",status_code=204)
-def delete_post(id:int,db:Session=Depends(get_db)):
+def delete_post(id:int,db:Session=Depends(get_db),user:schemas.TokenData=Depends(oauth2.get_current_user)):
     post=db.query(models.Post).filter(models.Post.id==id)
                         # cursor.execute("""DELETE FROM posts WHERE ID= %s RETURNING*""",(id,))
                         # conn.commit()
@@ -88,6 +89,8 @@ def delete_post(id:int,db:Session=Depends(get_db)):
     # index=find_index_post(id)
     if post.first() is None:
         raise HTTPException(status_code=404,detail=f"The post with post id: {id} does not exist!!!")
+    if post.first().user_id!=user.id:
+        raise HTTPException(status_code=403,detail="Not authorised to perform this operation")
     # my_posts.pop(index)
     post.delete(synchronize_session=False)
     db.commit()
@@ -99,7 +102,7 @@ def delete_post(id:int,db:Session=Depends(get_db)):
 #UPDATE
 #PUT
 @router.put("/{id}",response_model=schemas.Post)
-def update_entire_post(id:int, post:schemas.PostCreate,db:Session=Depends(get_db)):
+def update_entire_post(id:int, post:schemas.PostCreate,db:Session=Depends(get_db),user:schemas.TokenData=Depends(oauth2.get_current_user)):
                                                     # print(post)
                                                     # ind=find_index_post(id)
                             # cursor.execute("""UPDATE posts SET title=%s, content=%s, published=%s WHERE ID=%s RETURNING *""",(post.title,post.content,post.published, id))
@@ -108,6 +111,8 @@ def update_entire_post(id:int, post:schemas.PostCreate,db:Session=Depends(get_db
     updated_post=db.query(models.Post).filter(models.Post.id==id)
     if updated_post.first() is None:
             raise HTTPException(status_code=404,detail=f"The post with post id: {id} does not exist!!!")
+    if post.user_id!=user.id:
+            raise HTTPException(status_code=403,detail="Not authorised to perform this operation")
     updated_post.update(post.model_dump(),synchronize_session=False)
     db.commit() 
     return updated_post.first()
