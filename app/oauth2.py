@@ -1,18 +1,18 @@
 from datetime import timezone
 
-from fastapi import Depends,status,HTTPException
+from fastapi import Depends,HTTPException
 from jose import JWTError,jwt
 from datetime import datetime,timedelta
 from sqlalchemy.orm import Session
 from pydantic import Secret
-
+from .config import settings
 from app import database, models, schemas 
 from fastapi.security import OAuth2PasswordBearer
 oauth2_scheme=OAuth2PasswordBearer(tokenUrl='login')
 
-SECRET_KEY="yDdRA52r3L1ko5Hk5M6mNDWVM8MQzyEwpaSGrEVzLDA"
-ALGORITHM="HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES=30
+SECRET_KEY={settings.secret_key}
+ALGORITHM={settings.algorithm}
+ACCESS_TOKEN_EXPIRE_MINUTES={settings.access_token_expire_minutes}
 
 def create_access_token(data:dict):
     to_encode=data.copy()
