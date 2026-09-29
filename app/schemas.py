@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Optional
-
-from pydantic import BaseModel, ConfigDict,EmailStr
+from typing import Annotated
+from pydantic import BaseModel, ConfigDict,EmailStr, Field
 
 class PostBase(BaseModel):
     title:str
@@ -11,10 +11,7 @@ class PostBase(BaseModel):
 
 class PostCreate(PostBase):
     pass
-
-
         
-
 class UserCreate(BaseModel):
     # id:int
     email:EmailStr
@@ -35,10 +32,14 @@ class Token(BaseModel):
 
 class TokenData(BaseModel):
     id: Optional[int]=None
-    
+
 class Post(PostBase):
     id:int
     created_at: datetime
     user_id: int
     owner:UserSend
     model_config = ConfigDict(from_attributes=True)
+
+class Vote(BaseModel):
+    post_id: int
+    dir: Annotated[int, Field(ge=0, le=1)]
