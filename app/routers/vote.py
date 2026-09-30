@@ -1,4 +1,4 @@
-from fastapi import Depends,HTTPException,Response,APIRouter
+from fastapi import Depends,HTTPException,APIRouter
 from sqlalchemy.orm import Session
 from .. import schemas,database,models,oauth2
 router=APIRouter(prefix="/vote",tags=['Vote'])

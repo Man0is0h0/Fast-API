@@ -4,7 +4,6 @@ from fastapi import Depends,HTTPException
 from jose import JWTError,jwt
 from datetime import datetime,timedelta
 from sqlalchemy.orm import Session
-from pydantic import Secret
 from .config import settings
 from app import database, models, schemas 
 from fastapi.security import OAuth2PasswordBearer
