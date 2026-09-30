@@ -6,6 +6,7 @@ from ..database import get_db
 from fastapi import Depends,HTTPException,Response,APIRouter
 from sqlalchemy.orm import Session
 from typing import List, Optional
+from sqlalchemy import func
 
 router=APIRouter(
     prefix="/posts",
@@ -18,25 +19,25 @@ router=APIRouter(
 
 
 ##All Posts
-@router.get("/",response_model=List[schemas.Post]) 
+@router.get("/",response_model=List[schemas.PostOut])
 def get_all_posts(db:Session=Depends(get_db),user:schemas.TokenData=Depends(oauth2.get_current_user),limit:int=10,skip:int=0,search:Optional[str]=""):
-    print(limit)
-    posts=db.query(models.Post).filter(models.Post.title.contains(search)).limit(limit).offset(skip).all()
                     # cursor.execute("""SELECT * FROM posts ORDER BY id ASC""")
                     # posts=cursor.fetchall()
-    if not posts:
+    results=db.query(models.Post,func.count(models.Votes.post_id).label("Votes")).join(models.Votes, models.Post.id==models.Votes.post_id,isouter=True).group_by(models.Post.id).order_by(models.Post.id).filter(models.Post.title.contains(search)).limit(limit).offset(skip).all()
+    print(results)
+    if not results:
         raise HTTPException(status_code=404,detail="No Posts Available")
-    return posts
+    return results
 
 
 
 ##Post by id
-@router.get("/{id}",response_model=schemas.Post)
+@router.get("/{id}",response_model=schemas.PostOut)
 def get_post_by_id(id:int,db:Session=Depends(get_db),user:schemas.TokenData=Depends(oauth2.get_current_user)):
                                 # cursor.execute("""SELECT * FROM posts WHERE ID= %s""",(str(id)))
                                 # post=cursor.fetchone()
     # post=find_post(id)
-    post=db.query(models.Post).filter(models.Post.id==id).first()
+    post=db.query(models.Post,func.count(models.Votes.post_id).label("Votes")).join(models.Votes, models.Post.id==models.Votes.post_id,isouter=True).group_by(models.Post.id).filter(models.Post.id==id).first()
     if post is None:
         raise HTTPException(status_code=404,detail=f"The post with post id: {id} does not exist!!!")
     return post

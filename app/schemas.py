@@ -39,6 +39,10 @@ class Post(PostBase):
     user_id: int
     owner:UserSend
     model_config = ConfigDict(from_attributes=True)
+class PostOut(BaseModel):
+    Post: Post
+    Votes:int
+    model_config = ConfigDict(from_attributes=True)
 
 class Vote(BaseModel):
     post_id: int
