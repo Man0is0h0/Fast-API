@@ -24,7 +24,7 @@ SQLALCHEMY_DATABASE_URL = URL.create(
     host=settings.database_hostname,
     port=settings.database_port,
     database=settings.database_name,
-    query={"sslmode": "require"},
+    query={"sslmode": settings.database_sslmode},
 )
 engine=create_engine(SQLALCHEMY_DATABASE_URL)
 SessionLocal=sessionmaker(autocommit=False,autoflush=False,bind=engine) 

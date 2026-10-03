@@ -16,7 +16,7 @@ config.set_main_option(
     f"{settings.database_hostname}:"
     f"{settings.database_port}/"
     f"{settings.database_name}"
-    f"?sslmode=require"
+    f"?sslmode={settings.database_sslmode}"
 )
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
